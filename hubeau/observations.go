@@ -50,13 +50,14 @@ const (
 // GetAllObservations will automatically download and merge results available on multiples pages in order to have consolidated data
 func (c *Controller) GetAllObservations(ctx context.Context, parameters ObservationsRequest) (metrics []Observation, err error) {
 	parameters.Size = RequestMaxSize
-	urlValues, err := query.Values(parameters)
-	if err != nil {
-		err = fmt.Errorf("can't convert query parameters to url values: %w", err)
-		return
-	}
-	// Prepare to loop
+	var urlValues url.Values
 	for i := 0; ; i++ {
+		// encode parameters
+		urlValues, err = query.Values(parameters)
+		if err != nil {
+			err = fmt.Errorf("can't convert query parameters to url values: %w", err)
+			return
+		}
 		// Get this page
 		var response ObservationsResponse
 		if err = c.request(ctx, "GET", "hydrometrie/observations_tr", urlValues, &response); err != nil {
@@ -80,7 +81,7 @@ func (c *Controller) GetAllObservations(ctx context.Context, parameters Observat
 			return
 		}
 		if devMode {
-			fmt.Printf("crawling observations (%d)\n", i)
+			fmt.Printf("crawling observations... page %d downloaded, next cursor: %s\n", i+1, parameters.Cursor)
 		}
 	}
 }
