@@ -19,24 +19,35 @@ func (c *Controller) AddFlowValue(site, station string, lat, long float64, t tim
 
 // SendValues will push all the values within the internal buffer to victoria metrics and flush the buffer if successfull
 func (c *Controller) SendValues() (err error) {
-	buffer := new(strings.Builder)
-	encoder := json.NewEncoder(buffer)
+	// marshall buffers into jsonl payload
+	payload, err := c.preparePayload()
+	if err != nil {
+		err = fmt.Errorf("can't marshall internal buffers as JSON line payload: %w", err)
+		return
+	}
+	// send payload
+	fmt.Println(payload.String())
+	// payload successfully sent
+	clearValues(c.levels)
+	clearValues(c.flows)
+	return
+}
+
+func (c *Controller) preparePayload() (payload strings.Builder, err error) {
+	encoder := json.NewEncoder(&payload)
 	// write levels
 	for station, levelmetric := range c.levels {
 		if err = encoder.Encode(levelmetric); err != nil {
-			return fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
+			err = fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
+			return
 		}
 	}
 	// write flows
 	for station, flowmetric := range c.flows {
 		if err = encoder.Encode(flowmetric); err != nil {
-			return fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
+			err = fmt.Errorf("can't encode flow metrics for station '%s': %w", station, err)
+			return
 		}
 	}
-	// send payload
-	fmt.Println(buffer.String())
-	// payload successfully sent
-	clearValues(c.levels)
-	clearValues(c.flows)
 	return
 }
