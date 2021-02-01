@@ -10,7 +10,9 @@ import (
 
 // Config allows to customize the instanciation of a watcher with New()
 type Config struct {
-	Stations []string
+	Stations     []string
+	LevelsBuffer map[string]vmpusher.JSONLineMetric
+	FlowsBuffer  map[string]vmpusher.JSONLineMetric
 }
 
 // New returns an initialized and ready to use Controller
@@ -18,7 +20,7 @@ func New(ctx context.Context, conf Config) (c *Controller, err error) {
 	c = &Controller{
 		stations: conf.Stations,
 		source:   hubeau.New(),
-		target:   vmpusher.New(nil, nil),
+		target:   vmpusher.New(conf.LevelsBuffer, conf.FlowsBuffer),
 		ctx:      ctx,
 	}
 	return
