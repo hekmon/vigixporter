@@ -19,7 +19,8 @@ func main() {
 	listOfStations := []string{hubeau.StationParis, hubeau.StationAlfortville, hubeau.StationCreteil}
 
 	logger = hllogger.New(os.Stderr, &hllogger.Config{
-		LogLevel: hllogger.Debug,
+		LogLevel:    hllogger.Debug,
+		LoggerFlags: hllogger.LstdFlags,
 	})
 
 	ctx, ctxCancel := context.WithCancel(context.Background())
