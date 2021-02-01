@@ -4,9 +4,10 @@ import (
 	"context"
 	"os"
 
-	"github.com/hekmon/hllogger"
 	"github.com/hekmon/vigixporter/hubeau"
 	"github.com/hekmon/vigixporter/watcher"
+
+	"github.com/hekmon/hllogger"
 )
 
 var (
