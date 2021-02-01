@@ -30,10 +30,10 @@ type ObservationType string
 const (
 	// ObservationTypeHeight represents the water height
 	ObservationTypeHeight ObservationType = "H"
-	// ObservationTypeSpeed represents the water speed
-	ObservationTypeSpeed ObservationType = "Q"
-	// ObservationTypeHeightAndSpeed represents both the water height and speed (used in query only)
-	ObservationTypeHeightAndSpeed ObservationType = "H,Q"
+	// ObservationTypeFlow represents the water flow
+	ObservationTypeFlow ObservationType = "Q"
+	// ObservationTypeHeightAndFlow represents both the water height and flow (used in query only)
+	ObservationTypeHeightAndFlow ObservationType = "H,Q"
 )
 
 // Sort represents the order of sorting
