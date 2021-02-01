@@ -23,6 +23,9 @@ func (c *Controller) GetBuffers() (levels, flows map[string]JSONLineMetric) {
 
 // SendValues will push all the values within the internal buffer to victoria metrics and flush the buffer if successfull
 func (c *Controller) SendValues() (err error) {
+	if len(c.flows) == 0 && len(c.levels) == 0 {
+		return
+	}
 	// marshall buffers into jsonl payload
 	payload, err := c.preparePayload()
 	if err != nil {
