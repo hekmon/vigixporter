@@ -15,11 +15,6 @@ func (c *Controller) AddFlowValue(site, station string, lat, long float64, t tim
 	addValue(c.flows, metricFlowName, site, station, lat, long, t, flow)
 }
 
-func (c *Controller) ClearValues() {
-	clearValues(c.levels)
-	clearValues(c.flows)
-}
-
 func (c *Controller) SendValues() (err error) {
 	buffer := new(strings.Builder)
 	encoder := json.NewEncoder(buffer)
@@ -35,7 +30,10 @@ func (c *Controller) SendValues() (err error) {
 			return fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
 		}
 	}
-	// payload ready
+	// send payload
 	fmt.Println(buffer.String())
+	// payload successfully sent
+	clearValues(c.levels)
+	clearValues(c.flows)
 	return
 }
