@@ -13,7 +13,7 @@ const (
 	// RequestMaxSize is the maximum number of series that is queriable in one request
 	RequestMaxSize = 20000
 	baseURLStr     = "https://hubeau.eaufrance.fr/api/v1/"
-	devMode        = true
+	devMode        = false
 )
 
 var (
