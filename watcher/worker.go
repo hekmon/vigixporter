@@ -57,7 +57,7 @@ func (c *Controller) batch() {
 	}
 	c.lastSeen = oldest
 	// Send them to victoria metrics
-	nbMetrics, err := c.target.SendValues()
+	nbMetrics, err := c.target.Send()
 	if err != nil {
 		c.logger.Errorf("[Watcher] current batch: can't send metrics to victoria metrics: %s", err)
 		return
