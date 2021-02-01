@@ -9,17 +9,11 @@ import (
 	"github.com/hekmon/vigixporter/hubeau"
 )
 
-const (
-	stationParis       = "F700000103"
-	stationAlfortville = "F490000104"
-	stationCreteil     = "F664000404"
-)
-
 func main() {
 	glouglou := hubeau.New()
 
 	answer, err := glouglou.GetObservations(context.Background(), hubeau.ObservationsRequest{
-		EntityCode: []string{stationAlfortville},
+		EntityCode: []string{hubeau.StationAlfortville},
 		Type:       hubeau.ObservationTypeHeight,
 		StartDate:  time.Now().Add(24 * time.Hour * -1),
 		// EndDate:    time.Now(),
@@ -36,7 +30,7 @@ func main() {
 	lastdate := answer.Data[len(answer.Data)-1].ObsDate
 
 	answer, err = glouglou.GetObservations(context.Background(), hubeau.ObservationsRequest{
-		EntityCode: []string{stationAlfortville},
+		EntityCode: []string{hubeau.StationAlfortville},
 		Type:       hubeau.ObservationTypeHeight,
 		StartDate:  lastdate,
 		// EndDate:    time.Now(),
