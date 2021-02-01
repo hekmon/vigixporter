@@ -10,14 +10,31 @@ const (
 	watchInterval = 10 * time.Minute
 )
 
+func (c *Controller) worker() {
+	// First batch now
+	c.batch()
+	// Next batchs
+	ticker := time.NewTicker(watchInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			c.batch()
+		case <-c.ctx.Done():
+			c.logger.Debug("[Watcher] stopping worker")
+			return
+		}
+	}
+}
+
 func (c *Controller) batch() {
 	// Get metrics
+	c.logger.Infof("[Watcher] current batch: getting new metrics")
 	metrics, err := c.source.GetAllObservations(c.ctx, hubeau.ObservationsRequest{
 		EntityCode: c.stations,
 		Type:       hubeau.ObservationTypeLevelAndFlow,
 		StartDate:  c.lastSeen,
 		Sort:       hubeau.SortAscending,
-		// Timestep:   10,
 	})
 	if err != nil {
 		c.logger.Errorf("[Watcher] current batch: can't get metrics from hubeau: %s", err)
