@@ -2,12 +2,12 @@ package vmpusher
 
 func New() *Controller {
 	return &Controller{
-		levels: make(map[string]jsonlMetric),
-		flows:  make(map[string]jsonlMetric),
+		levels: make(map[string]JSONLineMetric),
+		flows:  make(map[string]JSONLineMetric),
 	}
 }
 
 type Controller struct {
-	levels map[string]jsonlMetric
-	flows  map[string]jsonlMetric
+	levels map[string]JSONLineMetric
+	flows  map[string]JSONLineMetric
 }
