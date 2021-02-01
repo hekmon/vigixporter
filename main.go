@@ -4,18 +4,20 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hekmon/vigixporter/hubeau"
+	"github.com/hekmon/vigixporter/vmpusher"
 )
 
 func main() {
+	listOfStations := []string{hubeau.StationParis, hubeau.StationAlfortville, hubeau.StationCreteil}
+
 	glouglou := hubeau.New()
 
 	answer, err := glouglou.GetObservations(context.Background(), hubeau.ObservationsRequest{
-		EntityCode: []string{hubeau.StationAlfortville},
-		Type:       hubeau.ObservationTypeHeight,
-		StartDate:  time.Now().Add(24 * time.Hour * -1),
+		EntityCode: listOfStations,
+		Type:       hubeau.ObservationTypeLevel,
+		// StartDate:  time.Now().Add(24 * time.Hour * -1),
 		// EndDate:    time.Now(),
 		// Size:       hubeau.RequestMaxSize,
 		Size: hubeau.RequestMaxSize,
@@ -25,24 +27,27 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	printResults(answer.Data)
+	// printResults(answer.Data)
 
-	lastdate := answer.Data[len(answer.Data)-1].ObsDate
+	pusher := vmpusher.New()
 
-	answer, err = glouglou.GetObservations(context.Background(), hubeau.ObservationsRequest{
-		EntityCode: []string{hubeau.StationAlfortville},
-		Type:       hubeau.ObservationTypeHeight,
-		StartDate:  lastdate,
-		// EndDate:    time.Now(),
-		// Size:       hubeau.RequestMaxSize,
-		Size: hubeau.RequestMaxSize,
-		Sort: hubeau.SortAscending,
-		// Timestep:   10,
-	})
+	for _, metric := range answer.Data {
+		switch metric.Type {
+		case hubeau.ObservationTypeLevel:
+			pusher.AddLevelValue(metric.SiteCode, metric.StationCode, metric.Latitude, metric.Longitude, metric.ObsDate, metric.ObsResultat)
+		case hubeau.ObservationTypeFlow:
+			pusher.AddFlowValue(metric.SiteCode, metric.StationCode, metric.Latitude, metric.Longitude, metric.ObsDate, metric.ObsResultat)
+		default:
+			if err != nil {
+				log.Fatalf("Unknown type: %s\n", metric.Type)
+			}
+		}
+	}
+
+	err = pusher.SendValues()
 	if err != nil {
 		log.Fatal(err)
 	}
-	printResults(answer.Data)
 }
 
 func printResults(data []hubeau.Observation) {
@@ -50,7 +55,7 @@ func printResults(data []hubeau.Observation) {
 	for _, obs := range data {
 		fmt.Printf("%s\t%s", obs.ObsDate, obs.StationCode)
 		switch obs.Type {
-		case hubeau.ObservationTypeHeight:
+		case hubeau.ObservationTypeLevel:
 			fmt.Printf("\t%.2fm", obs.ObsResultat/1000)
 		case hubeau.ObservationTypeFlow:
 			fmt.Printf("\t%.2fm3/s", obs.ObsResultat/1000)
