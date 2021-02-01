@@ -28,14 +28,12 @@ func (c *Controller) SendValues() (err error) {
 		if err = encoder.Encode(levelmetric); err != nil {
 			return fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
 		}
-		fmt.Fprintln(buffer)
 	}
 	// write flows
 	for station, flowmetric := range c.flows {
 		if err = encoder.Encode(flowmetric); err != nil {
 			return fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
 		}
-		fmt.Fprintln(buffer)
 	}
 	// payload ready
 	fmt.Println(buffer.String())
