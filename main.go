@@ -14,13 +14,11 @@ func main() {
 
 	glouglou := hubeau.New()
 
-	answer, err := glouglou.GetObservations(context.Background(), hubeau.ObservationsRequest{
+	metrics, err := glouglou.GetAllObservations(context.Background(), hubeau.ObservationsRequest{
 		EntityCode: listOfStations,
-		Type:       hubeau.ObservationTypeLevel,
+		Type:       hubeau.ObservationTypeLevelAndFlow,
 		// StartDate:  time.Now().Add(24 * time.Hour * -1),
 		// EndDate:    time.Now(),
-		// Size:       hubeau.RequestMaxSize,
-		Size: hubeau.RequestMaxSize,
 		Sort: hubeau.SortAscending,
 		// Timestep:   10,
 	})
@@ -31,7 +29,7 @@ func main() {
 
 	pusher := vmpusher.New()
 
-	for _, metric := range answer.Data {
+	for _, metric := range metrics {
 		switch metric.Type {
 		case hubeau.ObservationTypeLevel:
 			pusher.AddLevelValue(metric.SiteCode, metric.StationCode, metric.Latitude, metric.Longitude, metric.ObsDate, metric.ObsResultat)

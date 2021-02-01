@@ -3,6 +3,7 @@ package hubeau
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -45,6 +46,44 @@ const (
 	// SortDescending represents a descending sort
 	SortDescending Sort = "desc"
 )
+
+// GetAllObservations will automatically download and merge results available on multiples pages in order to have consolidated data
+func (c *Controller) GetAllObservations(ctx context.Context, parameters ObservationsRequest) (metrics []Observation, err error) {
+	parameters.Size = RequestMaxSize
+	urlValues, err := query.Values(parameters)
+	if err != nil {
+		err = fmt.Errorf("can't convert query parameters to url values: %w", err)
+		return
+	}
+	// Prepare to loop
+	for i := 0; ; i++ {
+		// Get this page
+		var response ObservationsResponse
+		if err = c.request(ctx, "GET", "hydrometrie/observations_tr", urlValues, &response); err != nil {
+			err = fmt.Errorf("request #%d: getting checks failed: %w", i, err)
+			return
+		}
+		metrics = append(metrics, response.Data...)
+		// Parse next url
+		if response.Next == "" {
+			return
+		}
+		var nextURL *url.URL
+		if nextURL, err = url.Parse(response.Next); err != nil {
+			err = fmt.Errorf("request #%d: parsing next page URL failed: %w", i, err)
+			return
+		}
+		// Extract cursor for next call
+		parameters.Cursor = nextURL.Query().Get("cursor")
+		if parameters.Cursor == "" {
+			err = fmt.Errorf("url parameter 'cursor' was not found in next url: %s", nextURL)
+			return
+		}
+		if devMode {
+			fmt.Printf("crawling observations (%d)\n", i)
+		}
+	}
+}
 
 // GetObservations maps https://hubeau.eaufrance.fr/page/api-hydrometrie#/hydrometrie/observations
 func (c *Controller) GetObservations(ctx context.Context, parameters ObservationsRequest) (response ObservationsResponse, err error) {
