@@ -41,10 +41,10 @@ func addValue(metrics map[string]jsonlMetric, metricType, site, station string, 
 			labelLat:     fmt.Sprintf("%f", lat),
 			labelLong:    fmt.Sprintf("%f", long),
 		})
-		metrics[station] = metric
 	}
 	metric.Timestamps = append(metric.Timestamps, time.Unix())
 	metric.Values = append(metric.Values, value)
+	metrics[station] = metric
 }
 
 func clearValues(metrics map[string]jsonlMetric) {
