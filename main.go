@@ -26,7 +26,7 @@ func main() {
 	}
 	// printResults(answer.Data)
 
-	pusher := vmpusher.New()
+	pusher := vmpusher.New(nil, nil)
 
 	for _, metric := range metrics {
 		switch metric.Type {

@@ -1,10 +1,16 @@
 package vmpusher
 
 // New returns an initialized and ready to use Controller
-func New() *Controller {
+func New(levels, flows map[string]JSONLineMetric) *Controller {
+	if levels == nil {
+		levels = make(map[string]JSONLineMetric)
+	}
+	if flows == nil {
+		flows = make(map[string]JSONLineMetric)
+	}
 	return &Controller{
-		levels: make(map[string]JSONLineMetric),
-		flows:  make(map[string]JSONLineMetric),
+		levels: levels,
+		flows:  flows,
 	}
 }
 
