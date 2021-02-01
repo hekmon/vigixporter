@@ -18,6 +18,7 @@ const (
 	labelLong    = "longitude"
 )
 
+// JSONLineMetric represents a given metric with N values in the JSON line (streaming) format
 type JSONLineMetric struct {
 	Metric     map[string]string `json:"metric"`
 	Values     []float64         `json:"values"`
