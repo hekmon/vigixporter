@@ -34,7 +34,7 @@ func (c *Controller) Send() (nbMetrics int, err error) {
 		return
 	}
 	// send payload
-	fmt.Println(payload.String())
+	fmt.Printf(payload.String())
 	// payload successfully sent
 	nbMetrics = len(c.levels) + len(c.flows)
 	clearValues(c.levels)

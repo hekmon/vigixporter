@@ -49,8 +49,9 @@ func addValue(metrics map[string]JSONLineMetric, metricType, site, station strin
 }
 
 func clearValues(metrics map[string]JSONLineMetric) {
-	for _, metric := range metrics {
+	for station, metric := range metrics {
 		metric.Timestamps = make([]int64, 0, 1)
 		metric.Values = make([]float64, 0, 1)
+		metrics[station] = metric
 	}
 }
