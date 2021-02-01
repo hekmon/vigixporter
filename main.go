@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/hekmon/vigixporter/hubeau"
 	"github.com/hekmon/vigixporter/watcher"
@@ -21,8 +22,12 @@ func main() {
 		LogLevel: hllogger.Debug,
 	})
 
-	watcher, err := watcher.New(context.TODO(), watcher.Config{
+	ctx, ctxCancel := context.WithCancel(context.Background())
+	_, _ = watcher.New(ctx, watcher.Config{
 		Stations: listOfStations,
 		Logger:   logger,
 	})
+	time.Sleep(11 * time.Minute)
+	ctxCancel()
+	time.Sleep(30 * time.Second)
 }

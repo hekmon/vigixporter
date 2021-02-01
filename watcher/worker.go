@@ -44,7 +44,7 @@ func (c *Controller) batch() {
 		c.logger.Warning("[Watcher] current batch: we did not retreive any metrics")
 		return
 	}
-	c.logger.Infof("[Watcher] current batch: recovered %d metrics for %d stations", len(metrics), len(c.stations))
+	c.logger.Infof("[Watcher] current batch: recovered %d values for %d stations", len(metrics), len(c.stations))
 	// Ingerate metrics
 	var oldest time.Time
 	for index, metric := range metrics {
@@ -54,12 +54,12 @@ func (c *Controller) batch() {
 		}
 		switch metric.Type {
 		case hubeau.ObservationTypeLevel:
-			c.logger.Debugf("[Watcher] current batch: index %d: adding a level metric (station: %d, time: %s, value: %f)",
+			c.logger.Debugf("[Watcher] current batch: index %d: adding a level metric (station: %s, time: %s, value: %f)",
 				index, metric.StationCode, metric.ObsDate, metric.ObsResultat)
 			c.target.AddLevelValue(metric.SiteCode, metric.StationCode, metric.Latitude,
 				metric.Longitude, metric.ObsDate, metric.ObsResultat)
 		case hubeau.ObservationTypeFlow:
-			c.logger.Debugf("[Watcher] current batch: index %d: adding a flow metric (station: %d, time: %s, value: %f)",
+			c.logger.Debugf("[Watcher] current batch: index %d: adding a flow metric (station: %s, time: %s, value: %f)",
 				index, metric.StationCode, metric.ObsDate, metric.ObsResultat)
 			c.target.AddFlowValue(metric.SiteCode, metric.StationCode, metric.Latitude,
 				metric.Longitude, metric.ObsDate, metric.ObsResultat)

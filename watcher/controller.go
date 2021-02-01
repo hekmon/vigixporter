@@ -34,6 +34,7 @@ func New(ctx context.Context, conf Config) (c *Controller, err error) {
 		source:   hubeau.New(),
 		target:   vmpusher.New(levelsBuffer, flowsBuffer),
 		ctx:      ctx,
+		stopped:  make(chan struct{}),
 	}
 	// Launch worker
 	c.workers.Add(1)
