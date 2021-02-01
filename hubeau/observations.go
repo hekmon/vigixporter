@@ -41,7 +41,7 @@ type Sort string
 
 const (
 	// SortAscending represents an ascending sort
-	SortAscending Sort = "sort"
+	SortAscending Sort = "asc"
 	// SortDescending represents a descending sort
 	SortDescending Sort = "desc"
 )
