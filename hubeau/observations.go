@@ -28,12 +28,12 @@ type ObservationsRequest struct {
 type ObservationType string
 
 const (
-	// ObservationTypeHeight represents the water height
-	ObservationTypeHeight ObservationType = "H"
+	// ObservationTypeLevel represents the water level
+	ObservationTypeLevel ObservationType = "H"
 	// ObservationTypeFlow represents the water flow
 	ObservationTypeFlow ObservationType = "Q"
-	// ObservationTypeHeightAndFlow represents both the water height and flow (used in query only)
-	ObservationTypeHeightAndFlow ObservationType = "H,Q"
+	// ObservationTypeLevelAndFlow represents both the water level and flow (used in query only)
+	ObservationTypeLevelAndFlow ObservationType = "H,Q"
 )
 
 // Sort represents the order of sorting
