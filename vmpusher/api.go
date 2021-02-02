@@ -49,8 +49,8 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 		}
 	}
 	// cleanup
-	clearValues(c.levels)
-	clearValues(c.flows)
+	c.levels = make(map[string]JSONLineMetric, len(c.levels))
+	c.flows = make(map[string]JSONLineMetric, len(c.flows))
 	return
 }
 
