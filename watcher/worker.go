@@ -74,7 +74,7 @@ func (c *Controller) batch() {
 		}
 	}
 	// Send them to victoria metrics
-	nbMetrics, err := c.target.Send()
+	nbMetrics, nbValues, err := c.target.Send()
 	if err != nil {
 		c.logger.Errorf("[Watcher] current batch: can't send metrics to victoria metrics: %s", err)
 		return
@@ -82,7 +82,7 @@ func (c *Controller) batch() {
 	if nbMetrics == 0 {
 		c.logger.Info("[Watcher] current batch: no metric has been sent")
 	} else {
-		c.logger.Infof("[Watcher] current batch: successfully sent %d metrics", nbMetrics)
+		c.logger.Infof("[Watcher] current batch: successfully sent %d metrics containing %d values", nbMetrics, nbValues)
 	}
 }
 

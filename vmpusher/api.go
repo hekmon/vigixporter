@@ -23,7 +23,7 @@ func (c *Controller) GetBuffers() (levels, flows map[string]JSONLineMetric) {
 }
 
 // Send will push all the values within the internal buffer to victoria metrics and flush the buffer if successfull
-func (c *Controller) Send() (nbMetrics int, err error) {
+func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 	if len(c.flows) == 0 && len(c.levels) == 0 {
 		return
 	}
@@ -35,8 +35,15 @@ func (c *Controller) Send() (nbMetrics int, err error) {
 	}
 	// send payload
 	fmt.Printf(payload.String())
-	// payload successfully sent
+	// compute stats
 	nbMetrics = len(c.levels) + len(c.flows)
+	for _, levelMetric := range c.levels {
+		nbValues += len(levelMetric.Values)
+	}
+	for _, flowMetric := range c.flows {
+		nbValues += len(flowMetric.Values)
+	}
+	// cleanup
 	clearValues(c.levels)
 	clearValues(c.flows)
 	return
