@@ -29,11 +29,15 @@ func (c *Controller) worker() {
 
 func (c *Controller) batch() {
 	// Get metrics
-	c.logger.Infof("[Watcher] current batch: getting new metrics")
+	c.logger.Infof("[Watcher] current batch: getting new metrics...")
+	oldestLastSeen := c.getOldestSeen()
+	if !oldestLastSeen.IsZero() {
+		c.logger.Debugf("[Watcher] current batch: requesting data from the oldest last seen we got: %v", oldestLastSeen)
+	}
 	metrics, err := c.source.GetAllObservations(c.ctx, hubeau.ObservationsRequest{
 		EntityCode: c.stations,
 		Type:       hubeau.ObservationTypeLevelAndFlow,
-		StartDate:  c.getOldestSeen(),
+		StartDate:  oldestLastSeen,
 		Sort:       hubeau.SortAscending,
 	})
 	if err != nil {
@@ -73,6 +77,7 @@ func (c *Controller) batch() {
 				index, metric.Type, metric)
 		}
 	}
+	c.logger.Debugf("[Watcher] current batch: updated lastseen:\n\tlevels: %+v\n\tflows: %+v", c.lastSeenLevels, c.lastSeenFlows)
 	// Send them to victoria metrics
 	nbMetrics, nbValues, err := c.target.Send()
 	if err != nil {
