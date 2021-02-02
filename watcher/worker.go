@@ -33,7 +33,7 @@ func (c *Controller) batch() {
 	metrics, err := c.source.GetAllObservations(c.ctx, hubeau.ObservationsRequest{
 		EntityCode: c.stations,
 		Type:       hubeau.ObservationTypeLevelAndFlow,
-		StartDate:  c.lastSeen,
+		StartDate:  c.getOldestSeen(),
 		Sort:       hubeau.SortAscending,
 	})
 	if err != nil {
@@ -46,33 +46,33 @@ func (c *Controller) batch() {
 	}
 	c.logger.Infof("[Watcher] current batch: recovered %d values for %d stations", len(metrics), len(c.stations))
 	// Ingerate metrics
-	var oldest time.Time
 	for index, metric := range metrics {
-		if metric.ObsDate.Equal(c.lastSeen) {
-			c.logger.Debugf("[Watcher] current batch: index %d: metric has a known date: skipping", index)
-			continue
-		}
 		switch metric.Type {
 		case hubeau.ObservationTypeLevel:
+			if c.isLevelValueKnown(metric.StationCode, metric.ObsDate) {
+				c.logger.Debugf("[Watcher] current batch: index %d: level metric has a known date: skipping", index)
+				continue
+			}
 			c.logger.Debugf("[Watcher] current batch: index %d: adding a level metric (station: %s, time: %s, value: %f)",
 				index, metric.StationCode, metric.ObsDate, metric.ObsResultat)
 			c.target.AddLevelValue(metric.SiteCode, metric.StationCode, metric.Latitude,
 				metric.Longitude, metric.ObsDate, metric.ObsResultat)
+			c.lastSeenLevelCandidate(metric.StationCode, metric.ObsDate)
 		case hubeau.ObservationTypeFlow:
+			if c.isFlowValueKnown(metric.StationCode, metric.ObsDate) {
+				c.logger.Debugf("[Watcher] current batch: index %d: flow metric has a known date: skipping", index)
+				continue
+			}
 			c.logger.Debugf("[Watcher] current batch: index %d: adding a flow metric (station: %s, time: %s, value: %f)",
 				index, metric.StationCode, metric.ObsDate, metric.ObsResultat)
 			c.target.AddFlowValue(metric.SiteCode, metric.StationCode, metric.Latitude,
 				metric.Longitude, metric.ObsDate, metric.ObsResultat)
+			c.lastSeenFlowCandidate(metric.StationCode, metric.ObsDate)
 		default:
 			c.logger.Warningf("[Watcher] current batch: index %d: unknown metric type '%s' has been skipped: %+v",
 				index, metric.Type, metric)
 		}
-		if metric.ObsDate.After(oldest) {
-			oldest = metric.ObsDate
-			c.logger.Debugf("[Watcher] current batch: oldest date seen so far: %s", oldest)
-		}
 	}
-	c.lastSeen = oldest
 	// Send them to victoria metrics
 	nbMetrics, err := c.target.Send()
 	if err != nil {
@@ -83,5 +83,54 @@ func (c *Controller) batch() {
 		c.logger.Info("[Watcher] current batch: no metric has been sent")
 	} else {
 		c.logger.Infof("[Watcher] current batch: successfully sent %d metrics", nbMetrics)
+	}
+}
+
+func (c *Controller) getOldestSeen() (oldest time.Time) {
+	for _, lastLevelSeen := range c.lastSeenLevels {
+		if oldest.IsZero() {
+			oldest = lastLevelSeen
+		} else if lastLevelSeen.Before(oldest) {
+			oldest = lastLevelSeen
+		}
+	}
+	for _, lastFlowSeen := range c.lastSeenFlows {
+		if oldest.IsZero() {
+			oldest = lastFlowSeen
+		} else if lastFlowSeen.Before(oldest) {
+			oldest = lastFlowSeen
+		}
+	}
+	return
+}
+
+func (c *Controller) isLevelValueKnown(station string, metricTime time.Time) bool {
+	return isKnown(c.lastSeenLevels, station, metricTime)
+}
+
+func (c *Controller) isFlowValueKnown(station string, metricTime time.Time) bool {
+	return isKnown(c.lastSeenFlows, station, metricTime)
+}
+
+func isKnown(db map[string]time.Time, id string, value time.Time) (known bool) {
+	if lastKnown, found := db[id]; found && !value.After(lastKnown) {
+		known = true
+	}
+	return
+}
+
+func (c *Controller) lastSeenLevelCandidate(station string, candidate time.Time) {
+	lastSeenCandidate(c.lastSeenLevels, station, candidate)
+}
+
+func (c *Controller) lastSeenFlowCandidate(station string, candidate time.Time) {
+	lastSeenCandidate(c.lastSeenFlows, station, candidate)
+}
+
+func lastSeenCandidate(db map[string]time.Time, id string, candidate time.Time) {
+	if ref, found := db[id]; !found {
+		db[id] = candidate
+	} else if candidate.After(ref) {
+		db[id] = candidate
 	}
 }

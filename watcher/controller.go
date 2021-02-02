@@ -21,20 +21,20 @@ type Config struct {
 // New returns an initialized and ready to use Controller
 func New(ctx context.Context, conf Config) (c *Controller, err error) {
 	// Load state (TODO)
-	var (
-		levelsBuffer map[string]vmpusher.JSONLineMetric
-		flowsBuffer  map[string]vmpusher.JSONLineMetric
-		lastSeen     time.Time
-	)
+	levelsBuffer := make(map[string]vmpusher.JSONLineMetric)
+	flowsBuffer := make(map[string]vmpusher.JSONLineMetric)
+	lastSeenLevels := make(map[string]time.Time)
+	lastSeenFlows := make(map[string]time.Time)
 	// Init
 	c = &Controller{
-		stations: conf.Stations,
-		lastSeen: lastSeen,
-		logger:   conf.Logger,
-		source:   hubeau.New(),
-		target:   vmpusher.New(levelsBuffer, flowsBuffer),
-		ctx:      ctx,
-		stopped:  make(chan struct{}),
+		stations:       conf.Stations,
+		lastSeenLevels: lastSeenLevels,
+		lastSeenFlows:  lastSeenFlows,
+		logger:         conf.Logger,
+		source:         hubeau.New(),
+		target:         vmpusher.New(levelsBuffer, flowsBuffer),
+		ctx:            ctx,
+		stopped:        make(chan struct{}),
 	}
 	// Launch worker
 	c.workers.Add(1)
@@ -53,7 +53,8 @@ type Controller struct {
 	// config
 	stations []string
 	// state
-	lastSeen time.Time
+	lastSeenFlows  map[string]time.Time
+	lastSeenLevels map[string]time.Time
 	// subcontrollers
 	logger *hllogger.HlLogger
 	source *hubeau.Controller
@@ -70,6 +71,7 @@ func (c *Controller) autostop() {
 	// Begin the stopping proceedure
 	c.workers.Wait()
 	// TODO: save some state ?
+	c.target.GetBuffers()
 	// Close the stopped chan to indicate we are fully stopped
 	close(c.stopped)
 }

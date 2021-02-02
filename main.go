@@ -28,7 +28,7 @@ func main() {
 		Stations: listOfStations,
 		Logger:   logger,
 	})
-	time.Sleep(11 * time.Minute)
+	time.Sleep(10*time.Minute + 30*time.Second)
 	ctxCancel()
 	time.Sleep(30 * time.Second)
 }
