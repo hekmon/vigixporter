@@ -70,7 +70,7 @@ type Controller struct {
 func (c *Controller) autostop() {
 	// Wait for signal
 	<-c.ctx.Done()
-	c.logger.Infof("[Watcher] Stop signal received")
+	c.logger.Infof("[Watcher] stop signal received")
 	// Begin the stopping proceedure
 	c.workers.Wait()
 	// Save state
