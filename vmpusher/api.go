@@ -36,12 +36,17 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 	// send payload
 	fmt.Printf(payload.String())
 	// compute stats
-	nbMetrics = len(c.levels) + len(c.flows)
 	for _, levelMetric := range c.levels {
-		nbValues += len(levelMetric.Values)
+		if len(levelMetric.Values) != 0 {
+			nbMetrics++
+			nbValues += len(levelMetric.Values)
+		}
 	}
 	for _, flowMetric := range c.flows {
-		nbValues += len(flowMetric.Values)
+		if len(flowMetric.Values) != 0 {
+			nbMetrics++
+			nbValues += len(flowMetric.Values)
+		}
 	}
 	// cleanup
 	clearValues(c.levels)
@@ -53,16 +58,20 @@ func (c *Controller) preparePayload() (payload strings.Builder, err error) {
 	encoder := json.NewEncoder(&payload)
 	// write levels
 	for station, levelmetric := range c.levels {
-		if err = encoder.Encode(levelmetric); err != nil {
-			err = fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
-			return
+		if len(levelmetric.Values) != 0 {
+			if err = encoder.Encode(levelmetric); err != nil {
+				err = fmt.Errorf("can't encode level metrics for station '%s': %w", station, err)
+				return
+			}
 		}
 	}
 	// write flows
 	for station, flowmetric := range c.flows {
-		if err = encoder.Encode(flowmetric); err != nil {
-			err = fmt.Errorf("can't encode flow metrics for station '%s': %w", station, err)
-			return
+		if len(flowmetric.Values) != 0 {
+			if err = encoder.Encode(flowmetric); err != nil {
+				err = fmt.Errorf("can't encode flow metrics for station '%s': %w", station, err)
+				return
+			}
 		}
 	}
 	return
