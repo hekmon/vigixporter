@@ -17,9 +17,14 @@ func (c *Controller) AddFlowValue(site, station string, lat, long float64, t tim
 	addValue(c.flows, metricFlowName, site, station, lat, long, t, flow)
 }
 
-// GetBuffers returns the current flow and level buffers
-func (c *Controller) GetBuffers() (levels, flows map[string]JSONLineMetric) {
-	return c.levels, c.flows
+// GetLevelsBuffer returns the current levels buffer
+func (c *Controller) GetLevelsBuffer() (levels map[string]JSONLineMetric) {
+	return c.levels
+}
+
+// GetFlowsBuffer returns the current flows buffer
+func (c *Controller) GetFlowsBuffer() (levels map[string]JSONLineMetric) {
+	return c.flows
 }
 
 // Send will push all the values within the internal buffer to victoria metrics and flush the buffer if successfull

@@ -2,6 +2,7 @@ package watcher
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -20,19 +21,20 @@ type Config struct {
 
 // New returns an initialized and ready to use Controller
 func New(ctx context.Context, conf Config) (c *Controller, err error) {
-	// Load state (TODO)
-	levelsBuffer := make(map[string]vmpusher.JSONLineMetric)
-	flowsBuffer := make(map[string]vmpusher.JSONLineMetric)
-	lastSeenLevels := make(map[string]time.Time)
-	lastSeenFlows := make(map[string]time.Time)
+	// Load state
+	previousState, err := loadState()
+	if err != nil {
+		err = fmt.Errorf("can not restore previous state: %w", err)
+		return
+	}
 	// Init
 	c = &Controller{
 		stations:       conf.Stations,
-		lastSeenLevels: lastSeenLevels,
-		lastSeenFlows:  lastSeenFlows,
+		lastSeenLevels: previousState.LastSeenLevels,
+		lastSeenFlows:  previousState.LastSeenFlows,
 		logger:         conf.Logger,
 		source:         hubeau.New(),
-		target:         vmpusher.New(levelsBuffer, flowsBuffer),
+		target:         vmpusher.New(previousState.LevelsBuffer, previousState.FlowsBuffer),
 		ctx:            ctx,
 		stopped:        make(chan struct{}),
 	}
@@ -68,10 +70,21 @@ type Controller struct {
 func (c *Controller) autostop() {
 	// Wait for signal
 	<-c.ctx.Done()
+	c.logger.Infof("[Watcher] Stop signal received")
 	// Begin the stopping proceedure
 	c.workers.Wait()
-	// TODO: save some state ?
-	c.target.GetBuffers()
+	// Save state
+	c.logger.Infof("[Watcher] worker stopped, dumping state to disk...")
+	if err := saveState(state{
+		LevelsBuffer:   c.target.GetLevelsBuffer(),
+		FlowsBuffer:    c.target.GetFlowsBuffer(),
+		LastSeenLevels: c.lastSeenLevels,
+		LastSeenFlows:  c.lastSeenFlows,
+	}); err != nil {
+		c.logger.Errorf("[Watcher] failed to save state to disk, data will be lost: %s", err)
+	} else {
+		c.logger.Infof("[Watcher] state successfully written to disk")
+	}
 	// Close the stopped chan to indicate we are fully stopped
 	close(c.stopped)
 }
