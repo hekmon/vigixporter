@@ -24,10 +24,16 @@ func main() {
 	})
 
 	ctx, ctxCancel := context.WithCancel(context.Background())
-	_, _ = watcher.New(ctx, watcher.Config{
+
+	_, err := watcher.New(ctx, watcher.Config{
 		Stations: listOfStations,
 		Logger:   logger,
 	})
+
+	if err != nil {
+		logger.Fatalf(1, "Failed to instanciate the watcher: %s", err)
+	}
+
 	time.Sleep(10*time.Minute + 30*time.Second)
 	ctxCancel()
 	time.Sleep(30 * time.Second)

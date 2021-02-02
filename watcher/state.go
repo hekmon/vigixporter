@@ -31,6 +31,7 @@ func loadState() (s state, err error) {
 			s.FlowsBuffer = make(map[string]vmpusher.JSONLineMetric)
 			s.LastSeenLevels = make(map[string]time.Time)
 			s.LastSeenFlows = make(map[string]time.Time)
+			err = nil
 			return
 		}
 		// File may exists but we can not open it
