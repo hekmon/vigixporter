@@ -69,15 +69,8 @@ func (c *Controller) GetAllObservations(ctx context.Context, parameters Observat
 		if response.Next == "" {
 			return
 		}
-		var nextURL *url.URL
-		if nextURL, err = url.Parse(response.Next); err != nil {
-			err = fmt.Errorf("request #%d: parsing next page URL failed: %w", i, err)
-			return
-		}
-		// Extract cursor for next call
-		parameters.Cursor = nextURL.Query().Get("cursor")
-		if parameters.Cursor == "" {
-			err = fmt.Errorf("url parameter 'cursor' was not found in next url: %s", nextURL)
+		if parameters.Cursor, err = c.GetObservationsNextPageCursor(response.Next); err != nil {
+			err = fmt.Errorf("request #%d: getting next pasge cursor failed: %w", i, err)
 			return
 		}
 		if devMode {
@@ -145,3 +138,20 @@ const (
 	// SerieStatusValidated represents a serie which is validated
 	SerieStatusValidated SerieStatus = 16
 )
+
+// GetObservationsNextPageCursor allows to extract the cursor (to be used in ObservationsRequest.Cursor)
+// from the next URL found in ObservationsResponse.Next
+func (c *Controller) GetObservationsNextPageCursor(rawURL string) (cursor string, err error) {
+	// Parse URL
+	var nextURL *url.URL
+	if nextURL, err = url.Parse(rawURL); err != nil {
+		err = fmt.Errorf("parsing next page URL failed: %w", err)
+		return
+	}
+	// Extract cursor for next call
+	cursor = nextURL.Query().Get("cursor")
+	if cursor == "" {
+		err = fmt.Errorf("url parameter 'cursor' was not found in next url: %s", nextURL)
+	}
+	return
+}
