@@ -89,6 +89,18 @@ func (c *Controller) batch() {
 	} else {
 		c.logger.Infof("[Watcher] current batch: successfully sent %d metrics containing %d values", nbMetrics, nbValues)
 	}
+	// dump state to disk (just in case/to allow backup)
+	c.logger.Debug("[Watcher] current batch: dumping state to disk...")
+	if err := saveState(state{
+		LevelsBuffer:   c.target.GetLevelsBuffer(),
+		FlowsBuffer:    c.target.GetFlowsBuffer(),
+		LastSeenLevels: c.lastSeenLevels,
+		LastSeenFlows:  c.lastSeenFlows,
+	}); err != nil {
+		c.logger.Errorf("[Watcher] current batch: error while saving state to disk: %v", err)
+	} else {
+		c.logger.Info("[Watcher] current batch: state saved")
+	}
 }
 
 func (c *Controller) getOldestSeen() (oldest time.Time) {
