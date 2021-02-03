@@ -32,17 +32,6 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 	if len(c.flows) == 0 && len(c.levels) == 0 {
 		return
 	}
-	// marshall buffers into jsonl payload
-	payload, err := c.preparePayload()
-	if err != nil {
-		err = fmt.Errorf("can't marshall internal buffers as JSON line payload: %w", err)
-		return
-	}
-	// send payload
-	if err = c.push(payload.String()); err != nil {
-		err = fmt.Errorf("failed to push the metrics to victoria metrics server: %w", err)
-		return
-	}
 	// compute stats
 	for _, levelMetric := range c.levels {
 		if len(levelMetric.Values) != 0 {
@@ -55,6 +44,17 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 			nbMetrics++
 			nbValues += len(flowMetric.Values)
 		}
+	}
+	// marshall buffers into jsonl payload
+	payload, err := c.preparePayload()
+	if err != nil {
+		err = fmt.Errorf("can't marshall internal buffers as JSON line payload: %w", err)
+		return
+	}
+	// send payload
+	if err = c.push(payload.String()); err != nil {
+		err = fmt.Errorf("failed to push the metrics to victoria metrics server: %w", err)
+		return
 	}
 	// cleanup
 	c.levels = make(map[string]JSONLineMetric, len(c.levels))

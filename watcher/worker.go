@@ -78,30 +78,25 @@ func (c *Controller) batch() {
 		}
 	}
 	c.logger.Debugf("[Watcher] batch: updated lastseen:\n\tlevels: %+v\n\tflows: %+v", c.lastSeenLevels, c.lastSeenFlows)
-	// no matter what, end by dumping state to disk (just in case/to allow backup)
-	defer func() {
-		c.logger.Debug("[Watcher] batch: dumping state to disk...")
-		if err := saveState(state{
-			LevelsBuffer:   c.target.GetLevelsBuffer(),
-			FlowsBuffer:    c.target.GetFlowsBuffer(),
-			LastSeenLevels: c.lastSeenLevels,
-			LastSeenFlows:  c.lastSeenFlows,
-		}); err != nil {
-			c.logger.Errorf("[Watcher] batch: error while saving state to disk: %v", err)
-		} else {
-			c.logger.Info("[Watcher] batch: state saved")
-		}
-	}()
 	// Send them to victoria metrics
 	nbMetrics, nbValues, err := c.target.Send()
 	if err != nil {
-		c.logger.Errorf("[Watcher] batch: can't send metrics to victoria metrics: %s", err)
+		c.logger.Errorf("[Watcher] batch: failed to send %d metrics containing %d values: %s", nbMetrics, nbValues, err)
 		return
-	}
-	if nbMetrics == 0 {
-		c.logger.Info("[Watcher] batch: no metric has been sent")
 	} else {
 		c.logger.Infof("[Watcher] batch: successfully sent %d metrics containing %d values", nbMetrics, nbValues)
+	}
+	// no matter what, end by dumping state to disk (just in case/to allow backup)
+	c.logger.Debug("[Watcher] batch: dumping state to disk...")
+	if err := saveState(state{
+		LevelsBuffer:   c.target.GetLevelsBuffer(),
+		FlowsBuffer:    c.target.GetFlowsBuffer(),
+		LastSeenLevels: c.lastSeenLevels,
+		LastSeenFlows:  c.lastSeenFlows,
+	}); err != nil {
+		c.logger.Errorf("[Watcher] batch: error while saving state to disk: %v", err)
+	} else {
+		c.logger.Info("[Watcher] batch: state saved")
 	}
 }
 
