@@ -43,7 +43,7 @@ func addValue(metrics map[string]JSONLineMetric, metricType, site, station strin
 			labelLong:    fmt.Sprintf("%f", long),
 		})
 	}
-	metric.Timestamps = append(metric.Timestamps, time.Unix())
+	metric.Timestamps = append(metric.Timestamps, time.Unix()*1000)
 	metric.Values = append(metric.Values, value)
 	metrics[station] = metric
 }
