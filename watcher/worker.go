@@ -105,16 +105,12 @@ func (c *Controller) batch() {
 
 func (c *Controller) getOldestSeen() (oldest time.Time) {
 	for _, lastLevelSeen := range c.lastSeenLevels {
-		if oldest.IsZero() {
-			oldest = lastLevelSeen
-		} else if lastLevelSeen.Before(oldest) {
+		if lastLevelSeen.Before(oldest) {
 			oldest = lastLevelSeen
 		}
 	}
 	for _, lastFlowSeen := range c.lastSeenFlows {
-		if oldest.IsZero() {
-			oldest = lastFlowSeen
-		} else if lastFlowSeen.Before(oldest) {
+		if lastFlowSeen.Before(oldest) {
 			oldest = lastFlowSeen
 		}
 	}
