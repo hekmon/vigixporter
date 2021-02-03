@@ -7,6 +7,7 @@ import (
 
 	"github.com/hekmon/vigixporter/hubeau"
 	"github.com/hekmon/vigixporter/watcher"
+	systemd "github.com/iguanesolutions/go-systemd/v5"
 
 	"github.com/hekmon/hllogger"
 )
@@ -18,9 +19,15 @@ var (
 func main() {
 	listOfStations := []string{hubeau.StationParis, hubeau.StationAlfortville, hubeau.StationCreteil}
 
+	_, systemdStarted := systemd.GetInvocationID()
+	var logFlags int
+	if !systemdStarted {
+		logFlags = hllogger.LstdFlags
+	}
 	logger = hllogger.New(os.Stderr, &hllogger.Config{
-		LogLevel:    hllogger.Debug,
-		LoggerFlags: hllogger.LstdFlags,
+		LogLevel:              hllogger.Debug,
+		LoggerFlags:           logFlags,
+		SystemdJournaldCompat: systemdStarted,
 	})
 
 	ctx, ctxCancel := context.WithCancel(context.Background())
