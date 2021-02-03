@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hekmon/vigixporter/hubeau"
+	"github.com/hekmon/vigixporter/hubeau/hydrometrie"
 	"github.com/hekmon/vigixporter/vmpusher"
 
 	"github.com/hekmon/hllogger"
@@ -33,7 +33,7 @@ func New(ctx context.Context, conf Config) (c *Controller, err error) {
 		lastSeenLevels: previousState.LastSeenLevels,
 		lastSeenFlows:  previousState.LastSeenFlows,
 		logger:         conf.Logger,
-		source:         hubeau.New(),
+		source:         hydrometrie.New(),
 		target:         vmpusher.New(previousState.LevelsBuffer, previousState.FlowsBuffer),
 		ctx:            ctx,
 		stopped:        make(chan struct{}),
@@ -59,7 +59,7 @@ type Controller struct {
 	lastSeenLevels map[string]time.Time
 	// subcontrollers
 	logger *hllogger.HlLogger
-	source *hubeau.Controller
+	source *hydrometrie.Controller
 	target *vmpusher.Controller
 	// workers mgmt
 	ctx     context.Context

@@ -1,4 +1,4 @@
-package hubeau
+package hydrometrie
 
 import (
 	"context"

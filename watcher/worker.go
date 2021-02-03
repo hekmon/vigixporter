@@ -3,7 +3,7 @@ package watcher
 import (
 	"time"
 
-	"github.com/hekmon/vigixporter/hubeau"
+	"github.com/hekmon/vigixporter/hubeau/hydrometrie"
 )
 
 const (
@@ -34,11 +34,11 @@ func (c *Controller) batch() {
 	if !oldestLastSeen.IsZero() {
 		c.logger.Debugf("[Watcher] current batch: requesting data from the oldest last seen we got: %v", oldestLastSeen)
 	}
-	metrics, err := c.source.GetAllObservations(c.ctx, hubeau.ObservationsRequest{
+	metrics, err := c.source.GetAllObservations(c.ctx, hydrometrie.ObservationsRequest{
 		EntityCode: c.stations,
-		Type:       hubeau.ObservationTypeLevelAndFlow,
+		Type:       hydrometrie.ObservationTypeLevelAndFlow,
 		StartDate:  oldestLastSeen,
-		Sort:       hubeau.SortAscending,
+		Sort:       hydrometrie.SortAscending,
 	})
 	if err != nil {
 		c.logger.Errorf("[Watcher] current batch: can't get metrics from hubeau: %s", err)
@@ -52,7 +52,7 @@ func (c *Controller) batch() {
 	// Ingerate metrics
 	for index, metric := range metrics {
 		switch metric.Type {
-		case hubeau.ObservationTypeLevel:
+		case hydrometrie.ObservationTypeLevel:
 			if c.isLevelValueKnown(metric.StationCode, metric.ObsDate) {
 				c.logger.Debugf("[Watcher] current batch: index %d: level metric has a known date: skipping", index)
 				continue
@@ -62,7 +62,7 @@ func (c *Controller) batch() {
 			c.target.AddLevelValue(metric.SiteCode, metric.StationCode, metric.Latitude,
 				metric.Longitude, metric.ObsDate, metric.ObsResultat)
 			c.lastSeenLevelCandidate(metric.StationCode, metric.ObsDate)
-		case hubeau.ObservationTypeFlow:
+		case hydrometrie.ObservationTypeFlow:
 			if c.isFlowValueKnown(metric.StationCode, metric.ObsDate) {
 				c.logger.Debugf("[Watcher] current batch: index %d: flow metric has a known date: skipping", index)
 				continue
