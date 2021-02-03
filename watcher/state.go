@@ -55,7 +55,9 @@ func saveState(s state) (err error) {
 	}
 	defer fd.Close()
 	// handle content
-	if err = json.NewEncoder(fd).Encode(s); err != nil {
+	enc := json.NewEncoder(fd)
+	enc.SetIndent("", "    ")
+	if err = enc.Encode(s); err != nil {
 		err = fmt.Errorf("can't write to state file %s: %w", stateFile, err)
 		return
 	}
