@@ -82,7 +82,6 @@ func (c *Controller) batch() {
 	nbMetrics, nbValues, err := c.target.Send()
 	if err != nil {
 		c.logger.Errorf("[Watcher] batch: failed to send %d metrics containing %d values: %s", nbMetrics, nbValues, err)
-		return
 	} else {
 		c.logger.Infof("[Watcher] batch: successfully sent %d metrics containing %d values", nbMetrics, nbValues)
 	}
