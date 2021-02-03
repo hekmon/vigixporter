@@ -15,8 +15,7 @@ import (
 // Config allows to customize the instanciation of a watcher with New()
 type Config struct {
 	Stations []string
-
-	Logger *hllogger.HlLogger
+	Logger   *hllogger.HlLogger
 }
 
 // New returns an initialized and ready to use Controller
@@ -26,6 +25,16 @@ func New(ctx context.Context, conf Config) (c *Controller, err error) {
 	if err != nil {
 		err = fmt.Errorf("can not restore previous state: %w", err)
 		return
+	}
+	// Allow backfill for new stations if a state already exists
+	var found bool
+	for _, station := range conf.Stations {
+		if _, found = previousState.LastSeenLevels[station]; !found {
+			previousState.LastSeenLevels[station] = time.Time{}
+		}
+		if _, found = previousState.LastSeenFlows[station]; !found {
+			previousState.LastSeenLevels[station] = time.Time{}
+		}
 	}
 	// Init
 	c = &Controller{
