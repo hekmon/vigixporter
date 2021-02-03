@@ -13,6 +13,7 @@ const (
 	// RequestMaxSize is the maximum number of series that is queriable in one request
 	RequestMaxSize = 20000
 	baseURLStr     = "https://hubeau.eaufrance.fr/api/v1/"
+	maxURL         = 2083
 	devMode        = false
 )
 
@@ -34,6 +35,10 @@ func (c *Controller) request(ctx context.Context, method, path string, queryPara
 	URL.Path += path
 	URL.RawQuery = queryParams.Encode()
 	// Build query
+	URLstr := URL.String()
+	if len(URLstr) > maxURL {
+		return fmt.Errorf("crafted URL is longer than %d which is the limit hubeau can process: %s", maxURL, URLstr)
+	}
 	req, err := http.NewRequestWithContext(ctx, method, URL.String(), nil)
 	if err != nil {
 		return fmt.Errorf("building HTTP query failed: %w", err)
