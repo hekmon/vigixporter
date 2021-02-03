@@ -39,7 +39,10 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 		return
 	}
 	// send payload
-	fmt.Printf(payload.String())
+	if err = c.push(payload.String()); err != nil {
+		err = fmt.Errorf("failed to push the metrics to victoria metrics server: %w", err)
+		return
+	}
 	// compute stats
 	for _, levelMetric := range c.levels {
 		if len(levelMetric.Values) != 0 {

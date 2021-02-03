@@ -15,6 +15,9 @@ import (
 // Config allows to customize the instanciation of a watcher with New()
 type Config struct {
 	Stations []string
+	VMURL    string
+	VMUser   string
+	VMPass   string
 	Logger   *hllogger.HlLogger
 }
 
@@ -38,14 +41,25 @@ func New(ctx context.Context, conf Config) (c *Controller, err error) {
 	}
 	// Init
 	c = &Controller{
-		stations:       conf.Stations,
+		// config
+		stations: conf.Stations,
+		// state
 		lastSeenLevels: previousState.LastSeenLevels,
 		lastSeenFlows:  previousState.LastSeenFlows,
-		logger:         conf.Logger,
-		source:         hydrometrie.New(),
-		target:         vmpusher.New(previousState.LevelsBuffer, previousState.FlowsBuffer),
-		ctx:            ctx,
-		stopped:        make(chan struct{}),
+		// subcontrollers
+		logger: conf.Logger,
+		source: hydrometrie.New(),
+		target: vmpusher.New(vmpusher.Config{
+			VMURL:   conf.VMURL,
+			VMUser:  conf.VMUser,
+			VMPass:  conf.VMPass,
+			Levels:  previousState.LevelsBuffer,
+			Flows:   previousState.FlowsBuffer,
+			Context: ctx,
+		}),
+		// workers mgmt
+		ctx:     ctx,
+		stopped: make(chan struct{}),
 	}
 	// Launch worker
 	c.workers.Add(1)

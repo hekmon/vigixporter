@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -19,6 +20,9 @@ import (
 const (
 	confEnvarStations = "VIGIXPORTER_STATIONS"
 	confEnvarLogLevel = "VIGIXPORTER_LOGLEVEL"
+	confEnvarVMURL    = "VIGIXPORTER_VMURL"
+	confEnvarVMUser   = "VIGIXPORTER_VMUSER"
+	confEnvarVMPass   = "VIGIXPORTER_VMPASS"
 )
 
 var (
@@ -67,22 +71,47 @@ func main() {
 		stations    []string
 	)
 	if stationsraw = os.Getenv(confEnvarStations); stationsraw == "" {
-		logger.Fatalf(1, "[Main] no stations submitted: use '%s' env var to set the stations to track. For example to follow Paris, Alfortville and Créteil: %s='%s,%s,%s'",
+		logger.Fatalf(1, "[Main] conf: no stations set: use '%s' env var to set the stations to track. For example to follow Paris, Alfortville and Créteil: %s='%s,%s,%s'",
 			confEnvarStations, confEnvarStations, hubeau.StationParis, hubeau.StationAlfortville, hubeau.StationCreteil)
 	}
 	stations = strings.Split(stationsraw, ",")
 	logger.Infof("[Main] conf: %d station(s) declared: %s", len(stations), strings.Join(stations, ", "))
 
+	// Get victoria metrics infos from env
+	var (
+		vmURL  string
+		vmUser string
+		vmPass string
+	)
+	if vmURL = os.Getenv(confEnvarVMURL); vmURL == "" {
+		logger.Fatalf(2, "[Main] conf: no victoria metrics JSON line import URL set: use '%s' env var to set the stations to track. For example: %s='http://destination-victoriametrics:8428/api/v1/import'",
+			confEnvarVMURL, confEnvarVMURL)
+	}
+	parsedURL, err := url.Parse(vmURL)
+	if err != nil {
+		logger.Fatalf(2, "[Main] conf: victoria metrics JSON line import URL is invalid: %s", err)
+	}
+	logger.Infof("[Main] conf: victoria metrics target url set to: %s", parsedURL)
+	vmUser = os.Getenv(confEnvarVMUser)
+	vmPass = os.Getenv(confEnvarVMPass)
+	if vmUser != "" && vmPass != "" {
+		logger.Info("[Main] conf: basic auth set")
+	} else {
+		logger.Debug("[Main] conf: basic auth NOT set")
+	}
+
 	// Prepare main context for broadcasting the stop signal
 	mainCtx, mainCtxCancel = context.WithCancel(context.Background())
 
 	// Launch the watcher
-	var err error
 	if core, err = watcher.New(mainCtx, watcher.Config{
 		Stations: stations,
+		VMURL:    vmURL,
+		VMUser:   vmUser,
+		VMPass:   vmPass,
 		Logger:   logger,
 	}); err != nil {
-		logger.Fatalf(2, "[Main] failed to instanciate the watcher: %s", err)
+		logger.Fatalf(3, "[Main] failed to instanciate the watcher: %s", err)
 	}
 	logger.Info("[Main] watcher started")
 
