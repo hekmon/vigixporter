@@ -26,7 +26,7 @@ func (c *Controller) push(payload string) (err error) {
 		return fmt.Errorf("failed to execute http request: %w", err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("unexpected HTTP code: %s", resp.Status)
 	}
 	return
