@@ -1,0 +1,10 @@
+# You need to setup at least one station. Multiples stations can be separated with a comma
+VIGIXPORTER_STATIONS=''
+
+# Victoria Metrics server
+VIGIXPORTER_VMURL=''
+VIGIXPORTER_VMUSER=''
+VIGIXPORTER_VMPASS=''
+
+# cli flags
+LOGLEVEL=info

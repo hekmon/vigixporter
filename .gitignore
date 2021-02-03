@@ -18,3 +18,11 @@
 vigixporter
 output.log
 vigixporter_state.json
+
+# Debian package
+debian/files
+debian/vigixporter/
+debian/vigixporter.substvars
+debian/vigixporter.debhelper.log
+debian/vigixporter.*.debhelper
+debian/debhelper-build-stamp

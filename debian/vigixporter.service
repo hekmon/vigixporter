@@ -1,0 +1,14 @@
+[Unit]
+Description=Vigicrue metric exporter
+After=network-online.target
+
+[Service]
+Type=notify
+User=vigixporter
+EnvironmentFile=/etc/default/vigixporter
+ExecStart=/usr/bin/vigixporter -loglevel $LOGLEVEL
+WorkingDirectory=~
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

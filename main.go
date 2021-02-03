@@ -19,7 +19,6 @@ import (
 
 const (
 	confEnvarStations = "VIGIXPORTER_STATIONS"
-	confEnvarLogLevel = "VIGIXPORTER_LOGLEVEL"
 	confEnvarVMURL    = "VIGIXPORTER_VMURL"
 	confEnvarVMUser   = "VIGIXPORTER_VMUSER"
 	confEnvarVMPass   = "VIGIXPORTER_VMPASS"
