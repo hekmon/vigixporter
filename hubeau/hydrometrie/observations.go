@@ -149,8 +149,7 @@ func (c *Controller) GetObservationsNextPageCursor(rawURL string) (cursor string
 		return
 	}
 	// Extract cursor for next call
-	cursor = nextURL.Query().Get("cursor")
-	if cursor == "" {
+	if cursor = nextURL.Query().Get("cursor"); cursor == "" {
 		err = fmt.Errorf("url parameter 'cursor' was not found in next url: %s", nextURL)
 	}
 	return
