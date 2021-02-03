@@ -53,7 +53,7 @@ func (c *Controller) Send() (nbMetrics, nbValues int, err error) {
 	}
 	// send payload
 	if err = c.push(payload.String()); err != nil {
-		err = fmt.Errorf("failed to push the metrics to victoria metrics server: %w", err)
+		err = fmt.Errorf("failed to push the metrics to the victoria metrics server: %w", err)
 		return
 	}
 	// cleanup
