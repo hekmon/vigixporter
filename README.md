@@ -10,9 +10,9 @@ When a new station is added, the maximum backlog is fetched from the hubeau API 
 
 ### State & Cache
 
-The exporter maintains a state and caches that is dumped to disk in order to be restored at next start. The file (`vigixporter_state.json`) is written on the current working directory. For the deb package, the working directory is the home of the low privileged user created by the package and used by the systemd service; you can check this with `systemctl cat vigixporter.service`.
+The exporter maintains a state and caches that are dumped to disk in order to be restored at next start. The file (`vigixporter_state.json`) is written on the current working directory. For the deb package, the working directory is the home of the low privileged user created by the package and used by the systemd service; you can check this with `systemctl cat vigixporter.service`.
 
-For each station the last data point timestamp is saved. On polling, vigixported selects the oldest timestamp seen for all the stations in order to request the minimum information from hubeau. Every point already known is skipped during processing to avoid duplicates. Once retreived, data is then converted and transmitted to the Victoria Metrics pusher component which maintains its own cache. If the victoria Metrics remote is offline, the converted datapoints are kept in cache until successfully pushed.
+For each station the last data point timestamp is saved. On polling, vigixporter selects the oldest timestamp seen for all the tracked stations in order to request the minimum information from hubeau. Every point already known is skipped during processing to avoid duplicates. Once retreived, data is then converted and transmitted to the Victoria Metrics pusher component which maintains its own cache. If the victoria Metrics remote is offline, the converted datapoints are kept in cache until successfully pushed.
 
 ## Configuration
 
