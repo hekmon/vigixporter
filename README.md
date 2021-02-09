@@ -32,5 +32,5 @@ Once configured, start (and activate at startup) with: `systemctl enable --now v
 
 2 metrics are created with the same tag set. Exemple:
 
-* vigixporter_water_level{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"} value is in millimeters
-* vigixporter_water_flow{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"} value is in liters per second (divide by 1000 to obtain m3/s)
+* `vigixporter_water_level{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"}` value is in millimeters
+* `vigixporter_water_flow{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"}` value is in liters per second (divide by 1000 to obtain m3/s)
