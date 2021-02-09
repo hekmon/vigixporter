@@ -26,7 +26,7 @@ For each station the last data point timestamp is saved. On polling, vigixporter
 
 The debian package has a systemd unit ready to be used: `vigixporter.service`. It reads its environment variables from the `/etc/default/vigixporter` file.
 
-Once configured, start (and activate at startup) with: `systemctl enable --now vigixporter.service`. Then check the logs with `systemctl status vigixporter.service` or `journalctl -f -u vigixporter.service`.
+Once configured, start (and activated at startup) with: `systemctl enable --now vigixporter.service`. Then check the logs with `systemctl status vigixporter.service` or `journalctl -f -u vigixporter.service`.
 
 ## Pushed metrics
 
