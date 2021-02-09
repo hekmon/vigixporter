@@ -27,3 +27,10 @@ For each station the last data point timestamp is saved. On polling, vigixporter
 The debian package has a systemd unit ready to be used: `vigixporter.service`. It reads its environment variables from the `/etc/default/vigixporter` file.
 
 Once configured, start (and activate at startup) with: `systemctl enable --now vigixporter.service`. Then check the logs with `systemctl status vigixporter.service` or `journalctl -f -u vigixporter.service`.
+
+## Pushed metrics
+
+2 metrics are created with the same tag set. Exemple:
+
+* vigixporter_water_level{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"} value is in millimeters
+* vigixporter_water_flow{latitude="48.844690", longitude="2.365511", site_code="F7000001", station_code="F700000103"} value is in liters per second (divide by 1000 to obtain m3/s)
