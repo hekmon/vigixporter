@@ -1,6 +1,6 @@
 # Vigixporter
 
-"[Vigicrue](https://www.vigicrues.gouv.fr/)" Victoria Metrics exporter/pusher. Data are probbed from [hubeau](https://hubeau.eaufrance.fr/page/api-hydrometrie).
+"[Vigicrue](https://www.vigicrues.gouv.fr/)" Victoria Metrics exporter/pusher. Data is probbed from [hubeau](https://hubeau.eaufrance.fr/page/api-hydrometrie).
 
 ## How it works
 
