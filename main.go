@@ -58,7 +58,7 @@ func main() {
 	if !systemdStarted {
 		logFlags = hllogger.LstdFlags
 	}
-	logger = hllogger.New(os.Stderr, &hllogger.Config{
+	logger = hllogger.New(os.Stdout, &hllogger.Config{
 		LogLevel:              logLevel,
 		LoggerFlags:           logFlags,
 		SystemdJournaldCompat: systemdStarted,
