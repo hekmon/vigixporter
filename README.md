@@ -1,5 +1,7 @@
 # Vigixporter
 
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/hekmon/vigixporter?label=DockerHub&logo=docker&sort=semver)](https://hub.docker.com/r/hekmon/vigixporter)
+
 "[Vigicrues](https://www.vigicrues.gouv.fr/)" Victoria Metrics exporter/pusher. Data is probbed from [hubeau](https://hubeau.eaufrance.fr/page/api-hydrometrie).
 
 ## How it works
