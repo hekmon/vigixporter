@@ -135,7 +135,7 @@ func handleSignals() {
 	// If we exit, allow main goroutine to do so
 	defer close(mainLock)
 	// Register signals
-	signalChannel := make(chan os.Signal)
+	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGTERM, syscall.SIGINT)
 	// Waiting for signals to catch
 	for {
