@@ -16,6 +16,7 @@
 
 # Dev
 vigixporter
+docker/vigixporter_alpine
 output.log
 vigixporter_state.json
 
